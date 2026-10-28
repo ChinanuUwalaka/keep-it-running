@@ -1,0 +1,11 @@
+apiVersion: 1
+providers:
+  - name: Keep It Running
+    orgId: 1
+    folder: Keep It Running
+    type: file
+    disableDeletion: true
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false
