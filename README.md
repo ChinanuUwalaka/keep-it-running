@@ -38,3 +38,26 @@ Then check: `docker compose ps`
 
 ## Current Scope
 This submission contains the observability foundation. Additional tracing, alerting, application instrumentation, and incident-response evidence should only be claimed after implementation and testing.
+
+## Extended Observability Components
+
+The optional `compose.remaining.yaml` adds Alertmanager, Jaeger, the OpenTelemetry Collector, and Fluent Bit without replacing the base Compose file.
+
+Start the extended stack with:
+
+`docker compose -f compose.yaml -f compose.remaining.yaml up -d`
+
+Local endpoints:
+- Alertmanager: http://localhost:19093
+- Jaeger tracing UI: http://localhost:16686
+- OpenTelemetry OTLP/gRPC receiver: localhost:14317
+- OpenTelemetry OTLP/HTTP receiver: http://localhost:14318
+
+Prometheus alert rules are defined in `monitoring/prometheus/alerts.yml`.
+Alertmanager routing is configured in `alerts/alertmanager.yml`.
+The OpenTelemetry Collector pipeline is in `tracing/otel-collector.yml`.
+Fluent Bit configuration and demonstration logs are in `logging/fluent-bit/`.
+
+The Fluent Bit example reads only the included sample logs and writes parsed events to its stdout output. It is a demonstration, not a claim that Fluent Bit forwards logs to Loki. Existing Alloy configuration is responsible for collecting the selected capstone containers' Docker logs.
+
+Alertmanager currently has no external notification integration configured. The Collector requires an instrumented application or trace generator to send spans before Jaeger can display application traces. Confirm these behaviors before describing them as fully tested.

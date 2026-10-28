@@ -1,0 +1,48 @@
+services:
+  prometheus:
+    volumes:
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    container_name: keep-it-running-alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --web.listen-address=0.0.0.0:9093
+    ports:
+      - "127.0.0.1:19093:9093"
+    volumes:
+      - ./alerts/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.66.0
+    container_name: keep-it-running-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "127.0.0.1:16686:16686"
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    container_name: keep-it-running-otel-collector
+    command:
+      - --config=/etc/otelcol-contrib/config.yaml
+    volumes:
+      - ./tracing/otel-collector.yml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "127.0.0.1:14317:4317"
+      - "127.0.0.1:14318:4318"
+    depends_on:
+      - jaeger
+    restart: unless-stopped
+
+  fluent-bit:
+    image: cr.fluentbit.io/fluent/fluent-bit:3.2
+    container_name: keep-it-running-fluent-bit
+    volumes:
+      - ./logging/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./logging/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - ./logging/fluent-bit/sample-logs:/var/log/capstone:ro
+    restart: unless-stopped

@@ -1,0 +1,20 @@
+groups:
+  - name: keep-it-running-health
+    rules:
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "A monitored target is down"
+          description: "Prometheus target {{ $labels.job }} at {{ $labels.instance }} is unavailable."
+
+      - alert: PrometheusScrapeFailures
+        expr: increase(prometheus_target_scrapes_exceeded_sample_limit_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus scrape sample limit exceeded"
+          description: "A target exceeded its configured sample limit."
