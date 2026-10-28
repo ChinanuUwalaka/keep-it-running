@@ -6,3 +6,5 @@
 *.disabled
 *.log
 .DS_Store
+
+*.before-remaining-work
