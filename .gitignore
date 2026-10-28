@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+*.backup
+*.failed
+*.disabled
+*.log
+.DS_Store
